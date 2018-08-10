@@ -19,22 +19,30 @@ def textToBinary(source):
     
 def createDictionary(binToInt, length):
     dic = {}
-    pad = math.ceil(math.log(length,2))
+    pad = int(math.ceil(math.log(length,2)))
     if binToInt:
         for i in range(length):
             dic[str(bin(i)[2:].zfill(pad))] = i
-        print('Created dictionary ' + repr(dic))
+        if isVerbose: print('Created dictionary ' + repr(dic))
         return dic
     else:
         for i in range(length):
             dic[i] = str(bin(i)[2:].zfill(pad))
-        print('Created dictionary ' + repr(dic))
+        if isVerbose: print('Created dictionary ' + repr(dic))
         return dic
 
 isVerbose = parser.exists(sys.argv, '--verbose') or parser.exists(sys.argv, '-v')
 will_decode = parser.exists(sys.argv, '--decode') or parser.exists(sys.argv, '-d')
 
-usable_bit_length = parser.getNextValue(sys.argv, '-b', 2)
+usable_bit_length = int(parser.getNextValue(sys.argv, '-b', 2))
+
+if usable_bit_length < 1:
+    print('Warning: Bit length chosen is too small (min=1), increasing to 2')
+    usable_bit_length = 2
+
+if usable_bit_length > 8:
+    print('Warning: Bit length chosen is too big (max=8), reducing to 2')
+    usable_bit_length = 2
 
 channel_data = parser.getNextValue(sys.argv, '-c', None)
 if channel_data == None:
@@ -117,11 +125,12 @@ if not will_decode:
                     exit()
         if isVerbose: print(str((1.0 - len(bits) / original_length) * 100.0) + '%')
     
-    print('Finished writing!')
+    print('Finished encoding!')
     if re.search(r'\..+',out_image_path) == None:
         out_image_path += original_filetype
     imageio.imwrite(out_image_path, original_img)
-    print('Top left corner is ' + repr(original_img[0,0,0]))
+    print('Finished writing image to file!')
+    if isVerbose: print('Top left corner is ' + repr(original_img[0,0,0]))
 else:
     file_path = parser.getNextValue(sys.argv, '-f', None)
     if file_path == None:
