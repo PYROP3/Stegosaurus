@@ -89,7 +89,7 @@ if not will_decode:
     bits = textToBinary(original_file.read())
     original_file.close()
     if isVerbose: print('Translated text!')
-    if len(bits)/2 > (original_img.shape[0] * original_img.shape[1] * len(channel_data)):
+    if len(bits)/usable_bit_length > (original_img.shape[0] * original_img.shape[1] * len(channel_data)):
         print('Error: image too small for intended file! Use more channels or get a bigger image.')
         exit()
 
@@ -102,7 +102,7 @@ if not will_decode:
 
     original_length = float(len(bits))
     while len(bits):
-        batch = bits[:usable_bit_length]
+        batch = bits[:usable_bit_length].zfill(usable_bit_length)
         bits = bits[usable_bit_length:]
         try:
             cc = channel_dictionary[channel_data[current_channel_position]]
